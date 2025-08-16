@@ -41,6 +41,45 @@ class Visitor(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.company})"
 
+# class VisitRequest(models.Model):
+#     STATUS_CHOICES = [
+#         ('PENDING', 'Pending'),
+#         ('APPROVED', 'Approved'),
+#         ('REJECTED', 'Rejected'),
+#         ('COMPLETED', 'Completed'),
+#         ('CANCELLED', 'Cancelled'),
+#     ]
+
+#     visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE)
+#     host = models.ForeignKey(HRUser, on_delete=models.CASCADE, related_name='hosted_visits')
+#     purpose = models.TextField()
+#     other_purpose = models.CharField(max_length=255, blank=True, null=True)
+#     visit_date = models.DateField()
+#     start_time = models.DateTimeField(null=True, blank=True)
+#     end_time = models.TimeField()
+#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+#     allow_mobile = models.BooleanField(default=False)
+#     allow_laptop = models.BooleanField(default=False)
+#     approved_by = models.ForeignKey(
+#         HRUser, 
+#         on_delete=models.SET_NULL, 
+#         null=True, 
+#         blank=True, 
+#         related_name='approved_visits'
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     requestedByEmployee = models.BooleanField(default=False)
+#     reference_employee_name = models.CharField(max_length=100, blank=True, null=True)
+#     reference_employee_department = models.CharField(max_length=100, blank=True, null=True)
+#     reference_purpose = models.CharField(max_length=255, blank=True, null=True)
+#     created_by = models.ForeignKey(HRUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_visits')
+#     checkin_time = models.DateTimeField(null=True, blank=True)  # New field for check-in
+#     checkout_time = models.DateTimeField(null=True, blank=True)  # New field for check-out
+#     checkout_by_hr = models.BooleanField(default=False)  # True if HR performed manual checkout
+#     valid_upto = models.DateField(null=True, blank=True)  # New field for request validity
+
+
 class VisitRequest(models.Model):
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
@@ -55,16 +94,19 @@ class VisitRequest(models.Model):
     purpose = models.TextField()
     other_purpose = models.CharField(max_length=255, blank=True, null=True)
     visit_date = models.DateField()
-    start_time = models.DateTimeField(null=True, blank=True)
-    end_time = models.TimeField()
+
+    # ✅ fix: use TimeField for both
+    start_time = models.TimeField(null=True, blank=True)
+    end_time   = models.TimeField(null=True, blank=True)
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     allow_mobile = models.BooleanField(default=False)
     allow_laptop = models.BooleanField(default=False)
     approved_by = models.ForeignKey(
-        HRUser, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
+        HRUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='approved_visits'
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,10 +116,13 @@ class VisitRequest(models.Model):
     reference_employee_department = models.CharField(max_length=100, blank=True, null=True)
     reference_purpose = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.ForeignKey(HRUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_visits')
-    checkin_time = models.DateTimeField(null=True, blank=True)  # New field for check-in
-    checkout_time = models.DateTimeField(null=True, blank=True)  # New field for check-out
-    checkout_by_hr = models.BooleanField(default=False)  # True if HR performed manual checkout
-    valid_upto = models.DateField(null=True, blank=True)  # New field for request validity
+    checkin_time = models.DateTimeField(null=True, blank=True)
+    checkout_time = models.DateTimeField(null=True, blank=True)
+    checkout_by_hr = models.BooleanField(default=False)
+    valid_upto = models.DateField(null=True, blank=True)
+
+
+
 
     # Multi-day check-in/check-out fields (10 days maximum)
     day_1_checkin = models.DateTimeField(null=True, blank=True)
@@ -177,7 +222,7 @@ class VisitorCard(models.Model):
     status = models.CharField(max_length=20, choices=CARD_STATUS_CHOICES, default='ACTIVE')
     issued_by = models.ForeignKey(HRUser, on_delete=models.SET_NULL, null=True)
     qr_code_image = models.ImageField(upload_to='visitor_qrcodes/', null=True, blank=True)
-    printed = models.BooleanField(default=False)
+    printed = models.BooleanField(default=False)    
 
     def __str__(self):
         return f"Card {self.card_number} - {self.visit_request.visitor}"

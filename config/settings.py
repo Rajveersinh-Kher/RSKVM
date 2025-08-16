@@ -90,23 +90,39 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'FullRSKVMSdb',
-#         'USER': 'postgres',
-#         'PASSWORD': 'RA101728vu',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
+#     'default': dj_database_url.config(
+#         default=os.environ.get('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
 # }
+
+
+if os.environ.get("DATABASE_URL"):
+    # Production (Render uses DATABASE_URL)
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:
+    # Local development (SQLite)
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'FullRSKVMSdb',
+        'USER': 'postgres',
+        'PASSWORD': 'RA101728vu',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        }
+    }
+
+
+
 
 # DATABASES = {
 #     'default': {
