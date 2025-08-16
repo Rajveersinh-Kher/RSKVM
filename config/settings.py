@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')#"^8iow3f9anh14s@bg%64@a!#@#*g-_rw1ay(oooxc7+awxf8z6" # Set this in Render environment variables
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Update this list with your actual production domain(s)
 ALLOWED_HOSTS = [
