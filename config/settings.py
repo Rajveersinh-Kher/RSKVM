@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Generate a new secret key: python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-SECRET_KEY = "^8iow3f9anh14s@bg%64@a!#@#*g-_rw1ay(oooxc7+awxf8z6" # Set this in Render environment variables
+SECRET_KEY = os.environ.get('SECRET_KEY')#"^8iow3f9anh14s@bg%64@a!#@#*g-_rw1ay(oooxc7+awxf8z6" # Set this in Render environment variables
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Update this list with your actual production domain(s)
 ALLOWED_HOSTS = [
@@ -86,17 +86,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+import dj_database_url
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'FullRSKVMSdb',
-        'USER': 'postgres',
-        'PASSWORD': 'RA101728vu',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'FullRSKVMSdb',
+#         'USER': 'postgres',
+#         'PASSWORD': 'RA101728vu',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
