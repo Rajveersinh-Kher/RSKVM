@@ -450,6 +450,28 @@ def search_visitors(request):
             })
     return JsonResponse({'results': results})
 
+# @login_required(login_url='/login/')
+# def update_request_status(request, request_id, action):
+#     if request.method == 'POST':
+#         visit_request = get_object_or_404(VisitRequest, id=request_id)
+#         visitor = visit_request.visitor
+#         visitor_email = visitor.email
+#         visitor_name = f"{visitor.first_name} {visitor.last_name}" if visitor.first_name or visitor.last_name else "Visitor"
+#         company_name = "Godrej"
+#         email_sent = False
+#         if action.upper() == 'APPROVE':
+#             visit_request.status = 'APPROVED'
+#             subject = f"Your visit to {company_name} has been approved"
+#             message = f"Dear {visitor_name}, your visit request has been approved. Please carry your ID and visit as per your appointment."
+#         elif action.upper() == 'REJECT':
+#             visit_request.status = 'REJECTED'
+#             subject = f"Your visit to {company_name} has been rejected"
+#             message = f"Dear {visitor_name}, unfortunately your visit request has been rejected. Please contact HR for more details."
+#         else:
+#             subject = message = None
+#         visit_request.save()
+from django.utils import timezone
+
 @login_required(login_url='/login/')
 def update_request_status(request, request_id, action):
     if request.method == 'POST':
@@ -459,17 +481,27 @@ def update_request_status(request, request_id, action):
         visitor_name = f"{visitor.first_name} {visitor.last_name}" if visitor.first_name or visitor.last_name else "Visitor"
         company_name = "Godrej"
         email_sent = False
+
         if action.upper() == 'APPROVE':
             visit_request.status = 'APPROVED'
+            visit_request.approved_at = timezone.now()   # ✅ fix
             subject = f"Your visit to {company_name} has been approved"
             message = f"Dear {visitor_name}, your visit request has been approved. Please carry your ID and visit as per your appointment."
+
         elif action.upper() == 'REJECT':
             visit_request.status = 'REJECTED'
+            visit_request.rejected_at = timezone.now()   # ✅ fix
             subject = f"Your visit to {company_name} has been rejected"
             message = f"Dear {visitor_name}, unfortunately your visit request has been rejected. Please contact HR for more details."
+
         else:
             subject = message = None
+
         visit_request.save()
+
+
+
+
         # Send email if possible
         if visitor_email and subject and message:
             try:
