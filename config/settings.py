@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')#"^8iow3f9anh14s@bg%64@a!#@#*g-_rw1ay(oooxc7+awxf8z6" # Set this in Render environment variables
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Update this list with your actual production domain(s)
 ALLOWED_HOSTS = [
@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'visitorapi',
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -114,6 +116,27 @@ DATABASES = {
 # }
 
 
+
+
+# Cloudinary configuration
+CLOUDINARY = {
+    "cloud_name": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    "api_key": os.environ.get("CLOUDINARY_API_KEY"),
+    "api_secret": os.environ.get("CLOUDINARY_API_SECRET"),
+}
+
+if DEBUG:
+    # Local development: use filesystem storage
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    # Production: use Cloudinary
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    MEDIA_URL = "https://res.cloudinary.com/{}/".format(
+        os.environ.get("CLOUDINARY_CLOUD_NAME")
+    )
+    MEDIA_ROOT = None  # Not needed for Cloudinary
 
 
 
