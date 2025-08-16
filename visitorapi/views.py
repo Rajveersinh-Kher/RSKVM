@@ -471,6 +471,9 @@ def search_visitors(request):
 #             subject = message = None
 #         visit_request.save()
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required(login_url='/login/')
 def update_request_status(request, request_id, action):
@@ -484,20 +487,54 @@ def update_request_status(request, request_id, action):
 
         if action.upper() == 'APPROVE':
             visit_request.status = 'APPROVED'
-            visit_request.approved_at = timezone.now()   # ✅ fix
+            # make sure it's a datetime object
+            if hasattr(visit_request, "approved_at"):
+                visit_request.approved_at = timezone.now()
             subject = f"Your visit to {company_name} has been approved"
             message = f"Dear {visitor_name}, your visit request has been approved. Please carry your ID and visit as per your appointment."
 
         elif action.upper() == 'REJECT':
             visit_request.status = 'REJECTED'
-            visit_request.rejected_at = timezone.now()   # ✅ fix
+            # make sure it's a datetime object
+            if hasattr(visit_request, "rejected_at"):
+                visit_request.rejected_at = timezone.now()
             subject = f"Your visit to {company_name} has been rejected"
             message = f"Dear {visitor_name}, unfortunately your visit request has been rejected. Please contact HR for more details."
 
         else:
             subject = message = None
 
+        # 🐞 Debug: log all field values and types
+        for field in visit_request._meta.fields:
+            value = getattr(visit_request, field.name)
+            logger.warning(f"DEBUG FIELD {field.name} => {type(value)} :: {value}")
+
+        # Save safely
         visit_request.save()
+
+        # Send email if needed
+        if visitor_email and subject and message:
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    f"Godrej Visitor Management System <{settings.EMAIL_HOST_USER}>",
+                    [visitor_email],
+                    fail_silently=False,
+                )
+                email_sent = True
+            except Exception as e:
+                logger.error(f"Failed to send email to visitor {visitor_email}: {e}")
+
+    # Redirect based on user type
+    user_type = getattr(request.user, 'user_type', None)
+    if user_type == 'HOS':
+        return redirect('hos-dashboard')
+    else:
+        return redirect('hr-dashboard')
+
+
+
 
 
 
